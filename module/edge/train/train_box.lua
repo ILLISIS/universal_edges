@@ -24,21 +24,10 @@ local function create_train_source_box(offset, edge, surface)
 	local edge_target = edge_util.edge_get_local_target(edge)
 	local edge_x = edge_util.offset_to_edge_x(offset, edge)
 
-	-- Discover parking area size
-	local parking_area_size = 1 -- Initial rail from the event
-	local still_looking = true
-	while parking_area_size <= 30 and still_looking do
-		local rail = surface.find_entity("straight-rail",
-			edge_util.edge_pos_to_world({ edge_x, -1 + parking_area_size * 2 }, edge))
-		if rail ~= nil then
-			parking_area_size = parking_area_size + 1
-		else
-			still_looking = false
-		end
-	end
-
 	-- Depends on how many signals/stations we need to make space for
 	local number_of_rails_to_spawn = 12
+	-- Parking area covers exactly the rails we create; updated later if penalty rails extend it
+	local parking_area_size = number_of_rails_to_spawn
 
 	-- if edge_target.direction % 8 == 0 then -- Entrance is north/south
 	local rails = {}

@@ -331,6 +331,9 @@ local function update_train_penalty_map(offset, edge, penalty_map)
 			end
 		end
 	end
+	-- Extend parking area to cover all penalty rails.
+	-- Penalty rails reach y = -25 - 4 * plan_length; parking_area_size = 13 + 2 * plan_length covers that.
+	link.parking_area_size = 13 + 2 * plan_length
 	link.penalty_rails = rails
 
 	--[[
