@@ -17,6 +17,10 @@ function itertools.partial_pairs(tbl, state, ticks_left)
 			state.index = nil
 			state.pos = 0
 		end
+		-- Validate index before passing to next() directly — a removed key causes "invalid key to 'next'"
+		if index ~= nil and tbl[index] == nil then
+			index = nil
+		end
 		return next, tbl, index
 	end
 
