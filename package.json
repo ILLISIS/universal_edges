@@ -16,10 +16,10 @@
 		"node": ">=18"
 	},
 	"peerDependencies": {
-		"@clusterio/controller": "^2.0.0-alpha.0",
-		"@clusterio/host": "^2.0.0-alpha.0",
-		"@clusterio/lib": "^2.0.0-alpha.0",
-		"@clusterio/web_ui": "^2.0.0-alpha.0"
+		"@clusterio/controller": "^2.0.0-alpha.22b",
+		"@clusterio/host": "^2.0.0-alpha.22b",
+		"@clusterio/lib": "^2.0.0-alpha.22b",
+		"@clusterio/web_ui": "^2.0.0-alpha.22b"
 	},
 	"devDependencies": {
 		"@ant-design/icons": "^5.3.7",
