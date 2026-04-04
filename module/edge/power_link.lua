@@ -11,11 +11,7 @@ local function poll_links(edge_id, edge, ticks_left)
 	end
 
 	if not edge.linked_power_state then
-		edge.linked_power_state = {
-			endpoint = 1,
-			index = 1,
-			pos = 1,
-		}
+		edge.linked_power_state = {}
 	end
 
 	local power_transfers = {}

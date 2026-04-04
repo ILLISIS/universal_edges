@@ -68,14 +68,14 @@
 ---@field rescan_penalties boolean
 
 ---@class TrainLinkState
----@field endpoint number
----@field index number
----@field pos number
+---@field endpoint number?
+---@field index number?
+---@field pos number?
 
 ---@class PollConnectorsState
----@field endpoint number
----@field index number
----@field pos number
+---@field endpoint number?
+---@field index number?
+---@field pos number?
 
 ---@class LinkedBelt
 ---@field chest LuaEntity
@@ -84,17 +84,17 @@
 ---@field flag_for_removal boolean?
 
 ---@class LinkedBeltState
----@field endpoint number
----@field index number
----@field pos number
+---@field endpoint number?
+---@field index number?
+---@field pos number?
 
 ---@class LinkedFluid
 ---@field pipe LuaEntity
 
 ---@class LinkedFluidState
----@field endpoint number
----@field index number
----@field pos number
+---@field endpoint number?
+---@field index number?
+---@field pos number?
 
 ---@class LinkedPower
 ---@field charge_sensor LuaEntity
@@ -103,6 +103,6 @@
 ---@field lua_buffered_energy number
 
 ---@class LinkedPowerState
----@field endpoint number
----@field index number
----@field pos number
+---@field endpoint number?
+---@field index number?
+---@field pos number?
