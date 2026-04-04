@@ -70,7 +70,7 @@ local function update_connector_paths(edge, offset, link)
 				train_stop = stop
 			}
 			-- Log position and backer_name
-			log("Found trainstop at " .. serpent.block(stop.position) .. " with name " .. stop.backer_name)
+			-- log("Found trainstop at " .. serpent.block(stop.position) .. " with name " .. stop.backer_name)
 		end
 	end
 	for _, stop in pairs(source_train_stops) do
@@ -124,7 +124,7 @@ local function update_connector_paths(edge, offset, link)
 
 	local result_targets = game.train_manager.request_train_path(request) ---@cast result_targets TrainPathAllGoalsResult
 	local reachable_targets = get_reachable_stations(result_targets, targets)
-	log("Reachable stations for offset " .. offset .. " " .. serpent.block(reachable_targets))
+	-- log("Reachable stations for offset " .. offset .. " " .. serpent.block(reachable_targets))
 	local result_sources = game.train_manager.request_train_path(source_request)
 	local reachable_sources = {}
 	for index, penalty in pairs(result_sources.penalties) do
@@ -134,7 +134,7 @@ local function update_connector_paths(edge, offset, link)
 			reachable_sources[#reachable_sources + 1] = source_ids[index]
 		end
 	end
-	log("Reachable exits for offset " .. offset .. " " .. serpent.block(reachable_sources))
+	-- log("Reachable exits for offset " .. offset .. " " .. serpent.block(reachable_sources))
 
 	-- Check if reachability has changed - if so, send an update to the controller
 	if has_string_array_changed(reachable_targets, link.reachable_targets) or has_string_array_changed(reachable_sources, link.reachable_sources) then
@@ -222,7 +222,7 @@ local function update_train_penalty_map(offset, edge, penalty_map)
 	if not has_changed then
 		return
 	end
-	log("Got penalty update for " .. offset .. " " .. serpent.block(penalty_map))
+	-- log("Got penalty update for " .. offset .. " " .. serpent.block(penalty_map))
 	link.last_penalty_map_update = penalty_map
 
 	-- Remove old penalty entities
