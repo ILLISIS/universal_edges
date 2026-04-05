@@ -86,7 +86,7 @@ local function on_tick()
 	if storage.universal_edges.pathfinder.rescan_connector_paths_after == game.tick then
 		storage.universal_edges.pathfinder.rescan_connector_paths_after = nil
 		-- Add rescan_penalties property to all links
-		log("Starting rescan")
+		-- log("Starting rescan")
 		for _, edge in pairs(storage.universal_edges.edges) do
 			if edge.linked_trains then
 				for _, link in pairs(edge.linked_trains) do

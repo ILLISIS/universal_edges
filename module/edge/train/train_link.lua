@@ -132,15 +132,6 @@ local function capture_train(offset, link, edge)
 		}, edge)
 	)
 
-	rendering.draw_rectangle {
-		left_top = area.left_top,
-		right_bottom = area.right_bottom,
-		surface = surface,
-		color = { r = 1, g = 0.5, b = 0, a = 0.4 },
-		filled = true,
-		time_to_live = 120,
-	}
-
 	local entities = surface.find_entities_filtered {
 		area = area,
 		type = {
