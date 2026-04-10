@@ -225,6 +225,16 @@ export class ControllerPlugin extends BaseControllerPlugin {
 			return;
 		}
 
+		// Remove tombstone entries (both arrays empty = link was removed)
+		if (data.reachable_targets.length === 0 && data.reachable_sources.length === 0) {
+			if (edge.link_destinations[data.offset]) {
+				delete edge.link_destinations[data.offset];
+				this.storageDirty = true;
+			}
+			this.pathfinderUpdate();
+			return;
+		}
+
 		// Add to cache
 		if (!edge.link_destinations[data.offset]) {
 			edge.link_destinations[data.offset] = {

@@ -14,6 +14,15 @@ local function remove_train_link(edge_id, edge, offset, entity)
 			offset = offset,
 		}
 	})
+	-- Notify controller so it removes the stale link_destinations entry
+	clusterio_api.send_json("universal_edges:train_layout_update", {
+		edge_id = edge_id,
+		data = {
+			offset = offset,
+			reachable_targets = {},
+			reachable_sources = {},
+		},
+	})
 end
 
 return remove_train_link
