@@ -1,4 +1,5 @@
 local LuaEntity_deserialize = require("modules/universal_edges/universal_serializer/classes/LuaEntity_deserialize")
+local constants = require("modules/universal_edges/constants")
 
 local TRAIN_TYPES = {
 	["cargo-wagon"] = true,
@@ -9,39 +10,57 @@ local TRAIN_TYPES = {
 
 -- called from control.lua on_tick handler every 15 ticks
 local function spawn_delayed_entities()
-	-- Iterate backwards so table.remove doesn't skip entries
 	local delayed_entities = storage.universal_edges.delayed_entities
-	local i = 1
-	while i <= #delayed_entities do
-		local delayed_entity = delayed_entities[i]
-		if not TRAIN_TYPES[delayed_entity.type] then
-			log("universal_edges: undefined delayed entity type: " .. delayed_entity.type)
-			table.remove(delayed_entities, i)
+	for unit_number, train_entry in pairs(delayed_entities) do
+		local front_stock = train_entry.front_stock
+		if not (front_stock and front_stock.valid) then
+			-- Train no longer exists, discard all its delayed entities
+			delayed_entities[unit_number] = nil
 		else
-			local front_stock = delayed_entity.front_stock
-			if not (front_stock and front_stock.valid) then
-				-- Train no longer exists, discard orphaned delayed entity
-				table.remove(delayed_entities, i)
-			else
-				-- Save train state before connecting a new carriage resets it
-				local manual_mode = front_stock.train.manual_mode
-				local speed = front_stock.train.speed
-				local schedule = front_stock.train.schedule
-
-				delayed_entity.position = get_position_behind_train(front_stock, 7)
-				local created_entity = LuaEntity_deserialize(delayed_entity)
-				if created_entity then
-					front_stock.train.manual_mode = manual_mode
-					front_stock.train.schedule = schedule
-					front_stock.train.speed = speed
-					-- Re-seat driver if this carriage had one
-					if delayed_entity.driver_name then
-						storage.universal_edges.vehicle_drivers[delayed_entity.driver_name] = created_entity
-					end
-					table.remove(delayed_entities, i)
+			local entities = train_entry.entities
+			local i = 1
+			while i <= #entities do
+				local delayed_entity = entities[i]
+				if not TRAIN_TYPES[delayed_entity.type] then
+					log("universal_edges: undefined delayed entity type: " .. delayed_entity.type)
+					table.remove(entities, i)
 				else
-					break -- No space yet, try again next tick
+					-- Save train state before connecting a new carriage resets it
+					local manual_mode = front_stock.train.manual_mode
+					local speed = front_stock.train.speed
+					local schedule = front_stock.train.schedule
+
+					delayed_entity.position = get_position_behind_train(front_stock, 7)
+
+					-- Clamp: don't spawn if target is too deep into the parking area (prevents bridging to proxy trains)
+					if delayed_entity.front_stock_origin and delayed_entity.position then
+						local MAX_DEPTH = constants.MAX_TRAIN_LENGTH * 7
+						local origin = delayed_entity.front_stock_origin
+						local pos = delayed_entity.position
+						local distance = math.sqrt((pos.x - origin.x)^2 + (pos.y - origin.y)^2)
+						if distance > MAX_DEPTH then
+							break -- Stop this train, continue to next train
+						end
+					end
+
+					local created_entity = LuaEntity_deserialize(delayed_entity)
+					if created_entity then
+						front_stock.train.manual_mode = manual_mode
+						front_stock.train.schedule = schedule
+						front_stock.train.speed = speed
+						-- Re-seat driver if this carriage had one
+						if delayed_entity.driver_name then
+							storage.universal_edges.vehicle_drivers[delayed_entity.driver_name] = created_entity
+						end
+						table.remove(entities, i)
+					else
+						break -- No space yet for this train, continue to next train
+					end
 				end
+			end
+			-- If all entities spawned, remove the train entry
+			if #entities == 0 then
+				delayed_entities[unit_number] = nil
 			end
 		end
 	end

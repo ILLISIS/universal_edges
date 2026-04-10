@@ -26,18 +26,15 @@ local function LuaTrainComplete_serialize(LuaTrain, carriages, edge, offset)
 	end
 
 	-- check for and stitch together any delayed carriages that have not been deserialized yet
-	for k = #storage.universal_edges.delayed_entities, 1, -1 do
-		local delayed_entity = storage.universal_edges.delayed_entities[k]
-		if delayed_entity.front_stock then  -- all delayed carriages should have this reference to the train they are apart of
-			local front_stock = delayed_entity.front_stock
-			if front_stock.valid and (front_stock.unit_number == LuaTrain.front_stock.unit_number) then
-				delayed_entity.front_stock = nil
-				train_data.carriages[#train_data.carriages + 1] = delayed_entity
-				table.remove(storage.universal_edges.delayed_entities, k)
-			end
-		else
-			table.remove(storage.universal_edges.delayed_entities, k)
+	local unit_number = LuaTrain.front_stock.unit_number
+	local delayed = storage.universal_edges.delayed_entities[unit_number]
+	if delayed then
+		for _, delayed_entity in ipairs(delayed.entities) do
+			delayed_entity.front_stock = nil
+			delayed_entity.front_stock_origin = nil
+			train_data.carriages[#train_data.carriages + 1] = delayed_entity
 		end
+		storage.universal_edges.delayed_entities[unit_number] = nil
 	end
 
 	train_data = hooks.run("LuaTrainComplete", "post_serialize", train_data, context)

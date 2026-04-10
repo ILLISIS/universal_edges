@@ -9,18 +9,38 @@ local function LuaTrainComplete_deserialize(train_data)
 	local context = {}
 	train_data = hooks.run("LuaTrainComplete", "pre_deserialize", train_data, context)
 
+	local MAX_SPAWN = 12
+	local spawn_count = 0
 	local first_locomotive
 	local front_stock -- tracks the first successfully spawned rolling stock, used as a reference for delayed carriages
+	local front_stock_origin -- snapshot of front_stock position at creation time, used as fixed reference for distance clamping
 	for _, carriage in ipairs(train_data.carriages) do
-		local entity = LuaEntity_deserialize(carriage)
+		local entity
+		if spawn_count < MAX_SPAWN then
+			entity = LuaEntity_deserialize(carriage)
+		end
 
 		if not entity then
-			-- Entity could not be created (no room), delay for on_tick retry
+			if not front_stock then
+				game.print("[FATAL] train was able to spawn and has therefre been lost")
+				return
+			end
+			-- Entity could not be created (no room or spawn limit reached), delay for on_tick retry
 			carriage.front_stock = front_stock
-			table.insert(storage.universal_edges.delayed_entities, carriage)
+			carriage.front_stock_origin = front_stock_origin
+			local unit_number = front_stock.unit_number
+			if not storage.universal_edges.delayed_entities[unit_number] then
+				storage.universal_edges.delayed_entities[unit_number] = {
+					front_stock = front_stock,
+					entities = {}
+				}
+			end
+			table.insert(storage.universal_edges.delayed_entities[unit_number].entities, carriage)
 		else
+			spawn_count = spawn_count + 1
 			if not front_stock then
 				front_stock = entity
+				front_stock_origin = {x = entity.position.x, y = entity.position.y}
 			end
 
 			-- Store vehicle entity under player name to re-seat after cross-instance teleport

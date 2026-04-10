@@ -57,6 +57,7 @@ local function setupGlobalData()
 			vehicle_drivers = {},
 			entity_last_positions = {},
 			barriers = {},  -- Storage for barrier entities
+			delayed_entities = {}, -- Keyed by front_stock unit_number, each entry has { front_stock, entities = {} }
 			GLOBAL_VERSION = GLOBAL_VERSION,
 		}
 	end
@@ -78,7 +79,7 @@ local function setupGlobalData()
 	if not storage.universal_edges.barriers then -- used in barrier_manager to track barrier entities
 		storage.universal_edges.barriers = {}
 	end
-	if not storage.universal_edges.delayed_entities then -- used in barrier_manager to track entities that have not yet spawned
+	if not storage.universal_edges.delayed_entities then
 		storage.universal_edges.delayed_entities = {}
 	end
 	storage.universal_edges = storage.universal_edges
