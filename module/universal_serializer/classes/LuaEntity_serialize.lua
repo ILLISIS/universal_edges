@@ -190,6 +190,14 @@ local function entity_serialize(entity)
 		entity_data.fluidbox = LuaFluidBox_serialize(entity.fluidbox)
 	end
 
+	-- Fluid storage / Fluid wagons
+	if entity.fluids_count > 0 and next(entity.get_fluid_contents()) then
+		entity_data.fluids = {}
+		for i = 1, entity.fluids_count do
+			entity_data.fluids[i] = entity.get_fluid(i)
+		end
+	end
+
 	--[[ Handle inventories ]]
 	entity_data.inventories = {}
 	--[[ Inventories are indexed from 1 to n, we don't care about their names. ]]

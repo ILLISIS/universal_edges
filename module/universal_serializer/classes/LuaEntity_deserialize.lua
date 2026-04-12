@@ -240,6 +240,13 @@ local function entity_deserialize(serialized_entity)
 		LuaFluidBox_deserialize(entity.fluidbox, entity_data.fluidbox)
 	end
 
+	-- Fluid storage / Fluid wagons
+	if entity_data.fluids ~= nil then
+		for i, fluid in pairs(entity_data.fluids) do
+			entity.set_fluid(tonumber(i) or i, fluid)
+		end
+	end
+
 	-- Entity ghost again
 	if entity_data.type == "entity-ghost" then
 		properties.item_requests = entity_data.item_requests
