@@ -520,7 +520,7 @@ function universal_edges.teleport_player_to_server_response(player_name, address
 	player.connect_to_server({
 		address = address,
 		name = (server_name or "unknown"),
-		description = "sever to the " .. (direction or "unknown")
+		description = "server to the " .. (direction or "unknown")
 	})
 end
 
