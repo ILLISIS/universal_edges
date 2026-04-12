@@ -507,7 +507,9 @@ end
 
 ---@param player_name string
 ---@param address string
-function universal_edges.teleport_player_to_server_response(player_name, address)
+---@param server_name string|nil
+---@param direction string|nil
+function universal_edges.teleport_player_to_server_response(player_name, address, server_name, direction)
 	if player_name == nil or address == nil then return end
 	local player = game.players[player_name]
 	if player == nil then
@@ -517,9 +519,8 @@ function universal_edges.teleport_player_to_server_response(player_name, address
 
 	player.connect_to_server({
 		address = address,
-		name = "Follow train",
-		description = "Connect to same server as the train went to",
-		-- password should be handled in the future
+		name = (server_name or "unknown"),
+		description = "sever to the " .. (direction or "unknown")
 	})
 end
 

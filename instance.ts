@@ -363,15 +363,20 @@ export class InstancePlugin extends BaseInstancePlugin {
 		}
 		// Get other side of edge
 		let target_instance_id = 0;
+		let direction = 0;
 		const current_instance_id = this.instance.config.get("instance.id");
 		if (current_instance_id === edge.edge.source.instanceId) {
 			target_instance_id = edge.edge.target.instanceId;
+			direction = edge.edge.source.direction;
 		} else {
 			target_instance_id = edge.edge.source.instanceId;
+			direction = edge.edge.target.direction;
 		}
+		const directionNames: Record<number, string> = { 0: "north", 4: "east", 8: "south", 12: "west" };
+		const directionName = directionNames[direction] || "unknown";
 
 		// Forward request to controller
-		const { address } = await this.instance.sendTo(
+		const { address, name } = await this.instance.sendTo(
 			"controller",
 			new messages.TeleportPlayerToServer(
 				data.player_name,
@@ -381,7 +386,9 @@ export class InstancePlugin extends BaseInstancePlugin {
 			)
 		);
 		// Send response back to game
-		await this.sendRcon(`/sc universal_edges.teleport_player_to_server_response("${data.player_name}", "${address}")`);
+		const escapedServerName = lib.escapeString(name);
+		const escapedDirection = lib.escapeString(directionName);
+		await this.sendRcon(`/sc universal_edges.teleport_player_to_server_response("${data.player_name}", "${address}", "${escapedServerName}", "${escapedDirection}")`);
 	}
 
 	async handleEdgeUpdate(event: messages.EdgeUpdate) {

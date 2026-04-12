@@ -120,6 +120,7 @@ export class TeleportPlayerToServer {
 
 	static Response = plainJson(Type.Object({
 		"address": Type.String(),
+		"name": Type.String(),
 	}));
 }
 

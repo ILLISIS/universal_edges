@@ -265,10 +265,11 @@ export class ControllerPlugin extends BaseControllerPlugin {
 			throw new lib.ResponseError(`Host ${hostId} not found for instance ${instanceId}`);
 		}
 		const address = `${host.publicAddress}:${instance.gamePort || instance.config.get("factorio.game_port")}`;
+		const name = instance.config.get("instance.name") as string;
 
 		// Send the teleport request
 		this.logger.info(`Teleporting ${playerName} to ${address} on edge ${edgeId} offset ${offset}`);
-		return { address };
+		return { address, name };
 	}
 
 	pathfinderUpdate() {
