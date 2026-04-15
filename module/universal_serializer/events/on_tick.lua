@@ -28,7 +28,7 @@ local function spawn_delayed_entities()
 					-- Save train state before connecting a new carriage resets it
 					local manual_mode = front_stock.train.manual_mode
 					local speed = front_stock.train.speed
-					local schedule = front_stock.train.schedule
+					local current_stop = front_stock.train.get_schedule() and front_stock.train.get_schedule().current or 1
 
 					delayed_entity.position = get_position_behind_train(front_stock, 7)
 
@@ -46,7 +46,7 @@ local function spawn_delayed_entities()
 					local created_entity = LuaEntity_deserialize(delayed_entity)
 					if created_entity then
 						front_stock.train.manual_mode = manual_mode
-						front_stock.train.schedule = schedule
+						front_stock.train.get_schedule().go_to_station(current_stop)
 						front_stock.train.speed = speed
 						-- Re-seat driver if this carriage had one
 						if delayed_entity.driver_name then

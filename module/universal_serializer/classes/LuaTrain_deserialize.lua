@@ -13,8 +13,9 @@ local function LuaTrain_deserialize(entity, train_data)
 		error("Failed to find train")
 	end
 	local train_schedule = train.get_schedule()
+	train_schedule.set_records(train_data.schedule.records or {})
+	train_schedule.go_to_station(train_data.schedule.current or 1)
 	train_schedule.set_interrupts(train_data.interrupts)
-	train.schedule = train_data.schedule
 	train.manual_mode = train_data.manual_mode
 	train.speed = train_data.speed
 
