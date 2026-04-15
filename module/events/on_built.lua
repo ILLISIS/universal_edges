@@ -53,10 +53,13 @@ local function on_built(entity)
 		local pos = { entity.position.x, entity.position.y }
 		for edge_id, edge in pairs(storage.universal_edges.edges) do
 			if edge.active and game.surfaces[edge_util.edge_get_local_target(edge).surface] == entity.surface then
-				-- We can reuse power_check since rail is the same size as substation
-				local offset = power_check(pos, edge, entity)
-				if offset ~= nil then
-					create_train_link(edge_id, edge, offset, entity)
+				-- Check the rail is crossing the edge, not running alongside it
+				if edge_util.edge_get_local_target(edge).direction % 8 == entity.direction % 8 then
+					-- We can reuse power_check since rail is the same size as substation
+					local offset = power_check(pos, edge, entity)
+					if offset ~= nil then
+						create_train_link(edge_id, edge, offset, entity)
+					end
 				end
 			end
 		end
