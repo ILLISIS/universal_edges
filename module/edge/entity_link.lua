@@ -105,6 +105,8 @@ local function poll_links(edge_id, edge, ticks_left)
 			if entity.player then
 				local waiting = storage.universal_edges.players_waiting_to_leave[entity.player.name]
 				if waiting == nil or waiting.edge_id ~= edge.id then
+					-- Move cursor item into main inventory so inventory_sync captures it
+					entity.player.clear_cursor()
 					storage.universal_edges.players_waiting_to_leave[entity.player.name] = {
 						edge_id = edge.id,
 						entity = entity,
@@ -127,10 +129,12 @@ local function poll_links(edge_id, edge, ticks_left)
 			local driver = entity.get_driver()
 			if driver and driver.player then
 				driver_name = driver.player.name
+				driver.player.clear_cursor()
 			end
 			local passenger = entity.get_passenger()
 			if passenger and passenger.player then
 				passenger_name = passenger.player.name
+				passenger.player.clear_cursor()
 			end
 			local serialized = universal_serializer.LuaEntity.serialize(entity)
 			if serialized.type == "spider-vehicle" and serialized.spidertron

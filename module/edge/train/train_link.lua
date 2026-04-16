@@ -383,6 +383,7 @@ local function receive_transfers(edge, train_transfers)
 								storage.universal_edges.vehicle_drivers[player.name] = nil
 							else
 								-- Cross server train rides need talking to the controller to figure out where to go
+								player.clear_cursor()
 								clusterio_api.send_json("universal_edges:teleport_player_to_server", {
 									player_name = player.name,
 									edge_id = edge.id,
