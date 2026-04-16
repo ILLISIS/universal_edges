@@ -14,6 +14,13 @@ local function create_belt_box(offset, edge, is_input, belt_type, surface)
 	local loader_type = util.belt_type_to_loader_type[belt_type]
 	local loader = surface.find_entity(loader_type, loader_pos)
 	if not loader then
+		-- Destroy any existing loader of a different tier before creating the new one
+		for _, other_loader_type in pairs(util.belt_type_to_loader_type) do
+			local old_loader = surface.find_entity(other_loader_type, loader_pos)
+			if old_loader then
+				old_loader.destroy()
+			end
+		end
 		loader = surface.create_entity {
 			name = loader_type,
 			position = loader_pos,
