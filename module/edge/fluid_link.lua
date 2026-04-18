@@ -3,6 +3,19 @@ local itertools = require("modules/universal_edges/itertools")
 
 local fluid_box = require("modules/universal_edges/edge/fluid_box")
 
+--- Read the fluid name and total amount from a pipe's fluid segment.
+--- Uses segment totals instead of fluidbox values for accurate amounts in Factorio 2.0.
+---@param pipe LuaEntity
+---@return string|nil name
+---@return number amount
+local function read_segment(pipe)
+	local segment = pipe.fluidbox.get_fluid_segment_contents(1)
+	if not segment then return nil, 0 end
+	local name, amount = next(segment)
+	if not name then return nil, 0 end
+	return name, amount --[[@as number]]
+end
+
 -- Send fluid level to partner for balancing
 ---@param edge_id string
 ---@param edge UniversalEdge
@@ -25,13 +38,14 @@ local function poll_links(edge_id, edge, ticks_left)
 			fluid_box.remove(offset, edge, nil)
 			goto continue
 		end
-		local fluidbox = link.pipe.fluidbox
-		if link.pipe.get_fluid_count() > 10 then
+		local fluid_name, amount = read_segment(link.pipe)
+		if fluid_name and amount > 10 then
+			local fluidbox_fluid = link.pipe.fluidbox[1]
 			fluid_transfers[#fluid_transfers + 1] = {
 				offset = offset,
-				name = fluidbox[1].name,
-				amount = fluidbox[1].amount,
-				temperature = fluidbox[1].temperature,
+				name = fluid_name,
+				amount = amount,
+				temperature = fluidbox_fluid and fluidbox_fluid.temperature or 15,
 			}
 		end
 		::continue::
@@ -69,33 +83,29 @@ local function receive_transfers(edge, fluid_transfers)
 			and fluid_transfer.name ~= nil
 			and fluid_transfer.temperature ~= nil
 		then
-			local local_fluid = link.pipe.fluidbox[1]
-			-- Make sure the fluid exists
-			if local_fluid == nil then
-				link.pipe.insert_fluid {
-					name = fluid_transfer.name,
-					amount = 1,
-				}
-				local_fluid = link.pipe.fluidbox[1]
-			end
-			local average = (fluid_transfer.amount + local_fluid.amount) / 2
-			-- Weighted average temperature
-			local average_temperature = (fluid_transfer.amount * fluid_transfer.temperature + local_fluid.amount * local_fluid.temperature) /
-				(fluid_transfer.amount + local_fluid.amount)
-			-- Only transfer balance in one direction - the partner will handle balancing the other way
-			if average > local_fluid.amount then
-				-- Send how much fluid we balanced as response
-				fluid_response_transfers[#fluid_response_transfers + 1] = {
-					offset = fluid_transfer.offset,
-					name = fluid_transfer.name,
-					amount_balanced = average - local_fluid.amount,
-				}
+			local local_name, local_amount = read_segment(link.pipe)
 
-				-- Update local fluid level
-				local_fluid.name = fluid_transfer.name
-				local_fluid.amount = average
-				local_fluid.temperature = average_temperature
-				link.pipe.fluidbox[1] = local_fluid
+			-- Skip if local pipe has a different fluid type
+			if local_name and local_name ~= fluid_transfer.name then
+				goto continue
+			end
+
+			local average = (fluid_transfer.amount + local_amount) / 2
+			-- Only transfer balance in one direction - the partner will handle balancing the other way
+			if average > local_amount then
+				local transfer_amount = average - local_amount
+				local inserted = link.pipe.insert_fluid {
+					name = fluid_transfer.name,
+					amount = transfer_amount,
+					temperature = fluid_transfer.temperature,
+				}
+				if inserted > 0 then
+					fluid_response_transfers[#fluid_response_transfers + 1] = {
+						offset = fluid_transfer.offset,
+						name = fluid_transfer.name,
+						amount_balanced = inserted,
+					}
+				end
 			end
 		end
 		if fluid_transfer.name and fluid_transfer.amount_balanced then
